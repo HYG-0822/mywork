@@ -1,0 +1,58 @@
+.profile-container {
+
+}
+
+.profile-card {
+
+}
+
+.profile-loading {
+
+}
+
+.profile-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.button-group {
+
+}
+
+.cancel-button {
+
+}
+
+.submit-button {
+
+}
+
+.form-group {
+    display: flex;
+    flex-direction: row;
+    gap: 0.5rem;
+}
+
+.form-group label {
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+
+.form-row {
+    display: flex;
+    flex-direction: row;
+    gap: 0.5rem;
+}
+
+.form-group.half {
+    flex: 1;
+}
+
+.error {
+
+}
+
+.error-message {
+    
+}
