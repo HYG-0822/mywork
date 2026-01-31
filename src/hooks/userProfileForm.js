@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 
+
 /**
  * useProfileForm 커스텀 훅
  *
@@ -101,7 +102,7 @@ export function useProfileForm(accessToken) {
 
     // 데이터 입력 시 상태와 연동하여 상태값 변경
     const handleChange = (e) => {
-        const [name, value] = e.target;
+        const {name, value} = e.target;
         setFormData(prev => ({...prev, [name]:value}));
 
         // 에러 초기화
@@ -137,9 +138,18 @@ export function useProfileForm(accessToken) {
             let bgImageUrl = previewBackground;
 
             // 이미지 업로드 API호출을 2번(ProfileImage, BackgroundImage)
-            // if (selectedFile) {
-            //     const uploadedUrl = 
-            // }
+            if (selectedFile) {
+                const uploadedUrl = await uploadImage(selectedFile);
+                if (uploadedUrl) profileImageUrl = uploadedUrl;
+            }
+
+            if (selectedBackgroundFile) {
+                const uploadedUrl = await uploadImage(selectedBackgroundFile);
+                if (uploadedUrl) bgImageUrl = uploadedUrl;
+            }
+
+            if (profileImageUrl?.startsWith('data:')) profileImageUrl = null;
+            if (bgImageUrl?.startsWith('data:')) bgImageUrl = null;
 
             // request Data 구성하기
             const requestData = {
@@ -170,8 +180,60 @@ export function useProfileForm(accessToken) {
         } finally {
             setIsLoading(false);
         }
-
     }
+
+    // 이미지 처리 함수
+    const handleImageSelect = (file, type) => {
+        if (!file) return false;
+
+        // 이미지 파일 유효성 검사
+        if (!file.type.startsWith('image/')) {
+            alert('이미지 파일만 선택 가능합니다');
+            return false;
+        }
+
+        const maxSize = 1024 * 1024 * 2;
+        if (file.size > maxSize) {
+            alert('파일 크기는 2MBytes 이하여야 합니다.');
+            return false;
+        }
+
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            if (type==='profile') {
+                setSelectedFile(file);
+                setPreviewImage(reader.result);
+            } else {
+                setSelectedBackgroundFile(file);
+                setPreviewBackground(reader.result);
+            }
+        }
+        reader.readAsDataURL(file);
+
+        return true;
+    };
+
+    // 이미지 업로드
+    const uploadImage = async (file) => {
+        if(!file) return null;
+
+        const uploadFormData = new FormData();
+        uploadFormData.append('file', file);
+
+        try {
+            const response = await axios.post('/api/upload/image', uploadFormData, {
+                headers: {'Authorization': `Bearer ${accessToken}`},
+                withCredentials: true
+            });
+
+            return response.data?.data?.imageUrl || null;
+        } catch (error) {
+            console.log('이미지 업로드 실패: ', error);
+            return null;
+        }
+    };
+
+
 
     // 반환값 정의
     return {
@@ -185,7 +247,9 @@ export function useProfileForm(accessToken) {
 
         // 핸들러
         handleChange,
-        submitProfile
+        submitProfile,
+        handleImageSelect,
+        uploadImage
     };
 
 }

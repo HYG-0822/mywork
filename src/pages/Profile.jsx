@@ -3,6 +3,7 @@ import GNB from "../components/Gnb";
 import { useAuth } from "../hooks/useAuth";
 import './Profile.css'
 import { useProfileForm } from "../hooks/userProfileForm";
+import ProfileImageSection from "../components/ProfileImageSection";
 
 function Profile() {
 
@@ -21,6 +22,9 @@ function Profile() {
             errors,
             isLoading,
             isLoadingProfile,
+            previewImage,
+            previewBackground,
+            handleImageSelect,
             handleChange,
             submitProfile
         } = useProfileForm(accessToken);
@@ -32,7 +36,7 @@ function Profile() {
 
         try {
             const success = await submitProfile();
-            if (success ) {
+            if (success) {
                 alert('프로필이 수정되었습니다');
                 navigate('/');
             } else {
@@ -81,6 +85,12 @@ function Profile() {
                         <h1>프로필 수정</h1>
 
                         <form onSubmit={handleSubmit} className="profile-form">
+                            <ProfileImageSection 
+                                previewImage={previewImage}
+                                previewBackground={previewBackground}
+                                onImageSelect={handleImageSelect}
+                            />
+
                             <FormField
                                 label="닉네임"
                                 name="name"
@@ -104,7 +114,7 @@ function Profile() {
                                 <FormField
                                     label="이름"
                                     name="firstName"
-                                    value={formData.firstNAme}
+                                    value={formData.firstName}
                                     onChange={handleChange}
                                     error={errors.firstName}
                                     placeholder="이름을 입력하세요"
